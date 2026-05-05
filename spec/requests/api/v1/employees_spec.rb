@@ -68,4 +68,24 @@ RSpec.describe "Api::V1::Employees", type: :request do
       expect(json_response["data"].length).to eq(3)
     end
   end
+
+  describe "GET /api/v1/employees/:id" do
+    let(:employee) { create(:employee) }
+
+    it "returns the employee details" do
+      get "/api/v1/employees/#{employee.id}"
+      expect(response).to have_http_status(:ok)
+
+      json_response = JSON.parse(response.body)
+      expect(json_response["data"]["id"]).to eq(employee.id)
+      expect(json_response["data"]["full_name"]).to eq(employee.full_name)
+    end
+
+    it "returns not found for non-existent employee" do
+      get "/api/v1/employees/999999"
+      expect(response).to have_http_status(:not_found)
+      json_response = JSON.parse(response.body)
+      expect(json_response["error"]).to eq("Resource not found")
+    end
+  end
 end
