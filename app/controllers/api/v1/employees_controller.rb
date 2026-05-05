@@ -17,7 +17,7 @@ class Api::V1::EmployeesController < ApplicationController
 
   def show
     employee = Employee.find(params[:id])
-    render json: { data: EmployeeSerializer.call(employee) }, status: :ok
+    render_success(EmployeeSerializer.call(employee))
   end
 
   private
@@ -32,5 +32,9 @@ class Api::V1::EmployeesController < ApplicationController
       :currency,
       :employment_type
     )
+  end
+
+  def render_success(data)
+    render json: { data: data }, status: :ok
   end
 end
