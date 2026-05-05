@@ -41,4 +41,29 @@ RSpec.describe "Api::V1::Insights", type: :request do
       expect(json_response["data"]["min_salary"]).to eq(0)
     end
   end
+
+  describe "GET /api/v1/insights/job_title" do
+    before do
+      create(:employee, job_title: "Software Engineer", salary: 50000, country: "India")
+      create(:employee, job_title: "Software Engineer", salary: 60000, country: "India")
+      create(:employee, job_title: "Product Manager", salary: 70000, country: "USA")
+      create(:employee, job_title: "Product Manager", salary: 80000, country: "USA")
+    end
+
+    it "returns average salary for a specific job title in a specific country" do
+      get "/api/v1/insights/job_title", params: { job_title: "Software Engineer", country: "India" }
+      expect(response).to have_http_status(:ok)
+      json_response = JSON.parse(response.body)
+
+      expect(json_response["data"]["average_salary"]).to eq(55000)
+    end
+
+    it "returns nil for a job title with no employees in the specified country" do
+      get "/api/v1/insights/job_title", params: { job_title: "Data Scientist", country: "USA" }
+      expect(response).to have_http_status(:ok)
+      json_response = JSON.parse(response.body)
+
+      expect(json_response["data"]["average_salary"]).to be_nil
+    end
+  end
 end
