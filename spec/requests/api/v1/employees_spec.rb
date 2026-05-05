@@ -88,4 +88,47 @@ RSpec.describe "Api::V1::Employees", type: :request do
       expect(json_response["error"]).to eq("Resource not found")
     end
   end
+
+  describe "PUT /api/v1/employees/:id" do
+    let(:employee) { create(:employee) }
+
+    it "updates the employee details" do
+      update_params = {
+        employee: {
+          full_name: "Jane Doe",
+          job_title: "Senior Software Engineer"
+        }
+      }
+
+      put "/api/v1/employees/#{employee.id}", params: update_params
+      expect(response).to have_http_status(:ok)
+
+      employee.reload
+      expect(employee.full_name).to eq("Jane Doe")
+      expect(employee.job_title).to eq("Senior Software Engineer")
+    end
+
+    it "returns errors with invalid parameters" do
+      update_params = {
+        employee: {
+          full_name: "",
+          salary: -5000
+        }
+      }
+
+      put "/api/v1/employees/#{employee.id}", params: update_params
+      expect(response).to have_http_status(:unprocessable_entity)
+
+      json_response = JSON.parse(response.body)
+      expect(json_response["errors"]).to include("Full name can't be blank")
+      expect(json_response["errors"]).to include("Salary must be greater than or equal to 0")
+    end
+
+    it "returns not found for non-existent employee" do
+      put "/api/v1/employees/999999", params: valid_params
+      expect(response).to have_http_status(:not_found)
+      json_response = JSON.parse(response.body)
+      expect(json_response["error"]).to eq("Resource not found")
+    end
+  end
 end
