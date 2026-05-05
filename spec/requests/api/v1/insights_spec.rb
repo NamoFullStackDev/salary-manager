@@ -36,7 +36,7 @@ RSpec.describe "Api::V1::Insights", type: :request do
       expect(response).to have_http_status(:ok)
       json_response = JSON.parse(response.body)
       expect(json_response["data"]["count"]).to eq(0)
-      expect(json_response["data"]["average_salary"]).to eq(0)
+      expect(json_response["data"]["average_salary"]).to be_nil
       expect(json_response["data"]["max_salary"]).to eq(0)
       expect(json_response["data"]["min_salary"]).to eq(0)
     end

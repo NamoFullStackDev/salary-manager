@@ -1,29 +1,27 @@
 class Api::V1::InsightsController < ApplicationController
   def country
     country = params[:country].titleize
-    employees = Employee.where(country: country)
+    scope = Employee.where(country: country)
 
-    data = build_country_insights(employees)
+    data = build_country_insights(scope)
 
     render json: { data: data }, status: :ok
   end
 
   def job_title
-    employees = Employee.where(country: params[:country].titleize, job_title: params[:job_title].titleize)
+    scope = Employee.where(country: params[:country].titleize, job_title: params[:job_title].titleize)
 
-    average_salary = employees.average(:salary)&.to_i
-
-    render json: { data: { average_salary: average_salary } }, status: :ok
+    render json: { data: build_country_insights(scope) }, status: :ok
   end
 
   private
 
-  def build_country_insights(employees)
+  def build_country_insights(scope)
     {
-      count: employees.count,
-      average_salary: employees.average(:salary).to_i || 0,
-      max_salary: employees.maximum(:salary) || 0,
-      min_salary: employees.minimum(:salary) || 0
+      count: scope.count,
+      average_salary: scope.average(:salary)&.to_i,
+      max_salary: scope.maximum(:salary) || 0,
+      min_salary: scope.minimum(:salary) || 0
     }
   end
 end
