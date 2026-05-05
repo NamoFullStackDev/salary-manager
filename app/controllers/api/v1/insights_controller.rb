@@ -14,6 +14,19 @@ class Api::V1::InsightsController < ApplicationController
     render json: { data: build_country_insights(scope) }, status: :ok
   end
 
+  def top_job_titles
+    results = Employee.where(country: params[:country].titleize).group(:job_title).select("job_title, AVG(salary) as average_salary").order("average_salary DESC")
+
+    data = results.map do |record|
+      {
+        job_title: record.job_title,
+        average_salary: record.average_salary.to_i
+      }
+    end
+
+    render json: { data: data }, status: :ok
+  end
+
   private
 
   def build_country_insights(scope)

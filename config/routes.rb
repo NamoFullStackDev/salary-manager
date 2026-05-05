@@ -15,6 +15,8 @@ Rails.application.routes.draw do
       get "insights/country/:country", to: "insights#country"
 
       get "insights/job_title", to: "insights#job_title"
+
+      get "insights/top_job_titles", to: "insights#top_job_titles"
     end
   end
 end
