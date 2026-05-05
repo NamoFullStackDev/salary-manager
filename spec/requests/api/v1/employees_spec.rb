@@ -150,4 +150,20 @@ RSpec.describe "Api::V1::Employees", type: :request do
       expect(json_response["error"]).to eq("Resource not found")
     end
   end
+
+  describe "GET /api/v1/employees with pagination" do
+    before do
+      create_list(:employee, 25)
+    end
+
+    it "returns paginated employees" do
+      get "/api/v1/employees", params: { page: 2, per_page: 10 }
+      expect(response).to have_http_status(:ok)
+      json_response = JSON.parse(response.body)
+      expect(json_response["data"].length).to eq(10)
+      expect(json_response["meta"]["current_page"]).to eq(2)
+      expect(json_response["meta"]["per_page"]).to eq(10)
+      expect(json_response["meta"]["total_pages"]).to eq(3)
+    end
+  end
 end
