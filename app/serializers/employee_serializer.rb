@@ -1,5 +1,13 @@
 class EmployeeSerializer
-  def self.call(employee)
+  def self.call(resource)
+    if resource.is_a?(ActiveRecord::Relation) || resource.is_a?(Array)
+      resource.map { |record| serialize(record) }
+    else
+      serialize(resource)
+    end
+  end
+
+  def self.serialize(employee)
     {
       id: employee.id,
       full_name: employee.full_name,

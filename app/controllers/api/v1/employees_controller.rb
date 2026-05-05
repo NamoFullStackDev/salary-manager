@@ -2,7 +2,16 @@ class Api::V1::EmployeesController < ApplicationController
   def index
     employees = Employee.all
 
-    render json: { data: employees.map { |employee| EmployeeSerializer.call(employee) } }, status: :ok
+    employees = employees.page(params[:page]).per(params[:per_page] || 20)
+
+    render json: {
+      data: EmployeeSerializer.call(employees),
+      meta: {
+        current_page: employees.current_page,
+        per_page: employees.limit_value,
+        total_pages: employees.total_pages
+      }
+    }, status: :ok
   end
 
   def create
