@@ -2,6 +2,9 @@ class Api::V1::EmployeesController < ApplicationController
   def index
     employees = Employee.all
 
+    employees = employees.where(country: params[:country].titleize) if params[:country].present?
+    employees = employees.where(job_title: params[:job_title].titleize) if params[:job_title].present?
+
     employees = employees.page(params[:page]).per(params[:per_page] || 20)
 
     render json: {
