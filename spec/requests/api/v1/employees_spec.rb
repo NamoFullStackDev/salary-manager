@@ -166,4 +166,18 @@ RSpec.describe "Api::V1::Employees", type: :request do
       expect(json_response["meta"]["total_pages"]).to eq(3)
     end
   end
+
+  describe "GET /api/v1/employees with filtering" do
+    let!(:employee1) { create(:employee, country: "India") }
+    let!(:employee2) { create(:employee, country: "USA") }
+
+    it "filters employees by country" do
+      get "/api/v1/employees", params: { country: "India" }
+      expect(response).to have_http_status(:ok)
+      json_response = JSON.parse(response.body)
+      expect(json_response["data"].length).to eq(1)
+      expect(json_response["data"][0]["country"]).to eq("India")
+      expect(json_response["data"][0]["id"]).to eq(employee1.id)
+    end
+  end
 end
