@@ -20,6 +20,16 @@ class Api::V1::EmployeesController < ApplicationController
     render_success(EmployeeSerializer.call(employee))
   end
 
+  def update
+    employee = Employee.find(params[:id])
+
+    if employee.update(employee_params)
+      render_success(EmployeeSerializer.call(employee))
+    else
+      render json: { errors: employee.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def employee_params
