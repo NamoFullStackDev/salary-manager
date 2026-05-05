@@ -2,14 +2,14 @@ class Api::V1::EmployeesController < ApplicationController
   def index
     employees = Employee.all
 
-    render json: { data: employees }, status: :ok
+    render json: { data: employees.map { |employee| EmployeeSerializer.call(employee) } }, status: :ok
   end
 
   def create
     employee = Employee.new(employee_params)
 
     if employee.save
-      render json: { data: employee }, status: :created
+      render json: { data: EmployeeSerializer.call(employee) }, status: :created
     else
       render json: { errors: employee.errors.full_messages }, status: :unprocessable_entity
     end
