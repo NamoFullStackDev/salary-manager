@@ -13,6 +13,8 @@ Rails.application.routes.draw do
       resources :employees
 
       get "insights/country/:country", to: "insights#country"
+
+      get "insights/job_title", to: "insights#job_title"
     end
   end
 end

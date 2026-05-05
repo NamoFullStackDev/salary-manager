@@ -8,6 +8,14 @@ class Api::V1::InsightsController < ApplicationController
     render json: { data: data }, status: :ok
   end
 
+  def job_title
+    employees = Employee.where(country: params[:country].titleize, job_title: params[:job_title].titleize)
+
+    average_salary = employees.average(:salary)&.to_i
+
+    render json: { data: { average_salary: average_salary } }, status: :ok
+  end
+
   private
 
   def build_country_insights(employees)
