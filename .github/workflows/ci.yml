@@ -6,31 +6,58 @@ on:
     branches: [ main ]
 
 jobs:
-  scan_ruby:
+  test:
     runs-on: ubuntu-latest
+
+    services:
+      sqlite:
+        image: keinos/sqlite3
+        ports:
+          - 5432:5432
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
-      
-      - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit
-      
+      - name: Setup DB
+        run: |
+          bin/rails db:create
+          bin/rails db:migrate
+
+      - name: Run tests
+        run: bundle exec rspec
+
+  scan_ruby:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run Brakeman
+        run: bundle exec brakeman --no-pager
+
+      - name: Run bundler-audit
+        run: bundle exec bundler-audit check --update
+
   lint:
     runs-on: ubuntu-latest
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -47,6 +74,5 @@ jobs:
           restore-keys: |
             rubocop-${{ runner.os }}-${{ env.DEPENDENCIES_HASH }}-
 
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-
+      - name: Run RuboCop
+        run: bundle exec rubocop -f github
